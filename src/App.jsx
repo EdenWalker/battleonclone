@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "./Navbar";
+import Navbar from "./Basic/Navbar";
 import HomePage from "./HomePage";
-import Header from "./Header";
-import Footer from "./Footer";
+import Header from "./Basic/Header";
+import Footer from "./Basic/Footer";
 import About from "./About";
 import Arena from "./Arena";
 import Shop from "./Shop";
@@ -11,6 +11,7 @@ import ShoppingCart from "./ShoppingCart";
 import Confirmation from "./Confirmation";
 import Inventory from "./Inventory"
 import PurchaseSuccess from "./PurchaseSuccess";
+import UserLogin from "./userLogin";
 
 import { Route, Switch ,useLocation} from "wouter";
 import { useFlashMessage } from './flashmsg';

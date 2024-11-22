@@ -41,5 +41,7 @@
   "main": "eslint.config.js",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "proxy": "https://3000-edenwalker-ecommercebac-ou69888nrqa.ws-us116.gitpod.io"
+
 }

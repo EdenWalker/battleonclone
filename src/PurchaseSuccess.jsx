@@ -18,7 +18,7 @@ const PurchaseSuccess = () => {
       <ul className="list-group mt-4">
         {cart.map((item) => (
           <li key={item.id} className="list-group-item">
-            <h5>{item.productName}</h5>
+            <h5>{item.name}</h5>
             <img
               src={item.imageUrl}
               alt={item.description}

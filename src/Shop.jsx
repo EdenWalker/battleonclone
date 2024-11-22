@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import OpponentCard from "./OpponentCard";
-import OpponentsData from "./OpponentsData";
+import EcommerceFetch from "./EcommerceFetch"; // Ensure this fetch function is properly set up
 
 function Shop() {
   const [opponents, setOpponents] = useState([]);
   const [sortedOpponents, setSortedOpponents] = useState([]);
   const [sortOrder, setSortOrder] = useState("asc");
   const monstersPerLoad = 4;
+  const [loading, setLoading] = useState(true); // Add loading state
+  const [error, setError] = useState(null); // Add error state
 
   const toggleSortOrder = () => {
     const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
-    const sorted = [...OpponentsData].sort((a, b) =>
+    const sorted = [...opponents].sort((a, b) =>
       newSortOrder === "asc" ? a.price - b.price : b.price - a.price
     );
     setSortedOpponents(sorted);
@@ -19,10 +21,21 @@ function Shop() {
   };
 
   useEffect(() => {
-    // Initially sort the data and load the first 4 monsters
-    const sorted = [...OpponentsData].sort((a, b) => a.price - b.price);
-    setSortedOpponents(sorted);
-    setOpponents(sorted.slice(0, monstersPerLoad));
+    const fetchOpponents = async () => {
+      try {
+        const data = await EcommerceFetch(); // Fetch data from backend
+        const sorted = data.sort((a, b) => a.price - b.price); // Sort data by price (ascending)
+        setSortedOpponents(sorted);
+        setOpponents(sorted.slice(0, monstersPerLoad)); // Set the first 4 opponents
+      } catch (err) {
+        setError("Failed to fetch opponents data.");
+        console.log(err);
+      } finally {
+        setLoading(false); // Stop loading after fetch is done
+      }
+    };
+
+    fetchOpponents();
   }, []);
 
   const loadMoreOpponents = () => {
@@ -30,6 +43,14 @@ function Shop() {
     const nextMonsters = sortedOpponents.slice(opponents.length, opponents.length + monstersPerLoad);
     setOpponents([...opponents, ...nextMonsters]);
   };
+
+  if (loading) {
+    return <p className="text-center">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center text-danger">{error}</p>;
+  }
 
   return (
     <>
@@ -50,12 +71,12 @@ function Shop() {
           {opponents.map((opponent, index) => (
             <div className="col-md-3 mb-4" key={index}>
               <OpponentCard
-                imageUrl={opponent.imageUrl}
-                productName={opponent.productName}
+                image={opponent.image}
+                Name={opponent.name}
                 price={opponent.price}
                 id={opponent.id}
-                description={opponent.description}
-                category={opponent.category}
+              
+                
               />
             </div>
           ))}

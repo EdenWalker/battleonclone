@@ -1,22 +1,37 @@
 import React, { useState } from 'react';
 import { useCart } from './Cart';
-import { useLocation } from 'wouter';
+import { useJwt } from './UserStore';
+import axios from 'axios';
 
 const OpponentCard = (props) => {
   const { addToCart } = useCart();
-  const [, setLocation] = useLocation();
+  const { getJwt } = useJwt();
 
   const [messages, setMessages] = useState('');
   const [showMessages, setShowMessages] = useState(false);
 
-  const handleAddToCart = () => {
-    addToCart(props);
-    setMessages(`${props.productName} added to cart`);
-    setShowMessages(true);
-
-    setTimeout(() => {
-      setShowMessages(false);
-    }, 2000);
+  const handleAddToCart = async () => {
+    const jwt = getJwt();
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/cart`,
+        { product_id: props.id, quantity: 1 },
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+          },
+        }
+      );
+      addToCart({ ...props, quantity: response.data.quantity });
+      setMessages(`${props.Name} added to cart`);
+      setShowMessages(true);
+      setTimeout(() => setShowMessages(false), 2000);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      setMessages('Failed to add to cart');
+      setShowMessages(true);
+      setTimeout(() => setShowMessages(false), 2000);
+    }
   };
 
   return (
@@ -33,8 +48,8 @@ const OpponentCard = (props) => {
         }}
       >
         <img
-          src={props.imageUrl}
-          alt={props.productName}
+          src={props.imageUrl || props.image}
+          alt={props.name}
           style={{
             maxWidth: '100%',
             maxHeight: '100%',
@@ -43,10 +58,8 @@ const OpponentCard = (props) => {
         />
       </div>
       <div className="card-body" style={{ height: '40%' }}>
-        <h5 className="card-title">{props.productName}</h5>
+        <h5 className="card-title">{props.Name}</h5>
         <p className="card-text">${props.price}</p>
-        {/* <p className="card-text">{props.description}</p> */}
-       {/* { <p className="card-text">Difficulty: {props.difficulty}</p>} */}
         {props.quantity && <p className="card-text">Quantity: {props.quantity}</p>}
         {!props.hideAddToCart && (
           <button className="btn btn-primary" onClick={handleAddToCart}>
