@@ -5,12 +5,40 @@ import { useCart } from "./Cart";
 const PurchaseSuccess = () => {
   const { cart, addToInventory } = useCart();
 
+  // useEffect(() => {
+  //   if (cart.length > 0) {
+  //     cart.forEach(item => addToInventory(item));
+  //   }
+  // }, [cart, addToInventory]);
   useEffect(() => {
+    const updateInventoryAfterPurchase = async () => {
+      const jwt = getJwt();
+      const inventoryItems = cart.map((item) => ({
+        productId: item.product_id,
+        quantity: item.quantity,
+      }));
+  
+      try {
+        await axios.post(
+          import.meta.env.VITE_API_URL + '/api/inventory',
+          { inventoryItems },
+          {
+            headers: {
+              Authorization: `Bearer ${jwt}`,
+            },
+          }
+        );
+        console.log("Inventory updated successfully after purchase.");
+      } catch (error) {
+        console.error("Error updating inventory:", error);
+      }
+    };
+  
     if (cart.length > 0) {
-      cart.forEach(item => addToInventory(item));
+      updateInventoryAfterPurchase();
     }
-  }, [cart, addToInventory]);
-
+  }, [cart]);
+  
   return (
     <div className="container mt-4">
       <h2>Thank You for Your Purchase!</h2>
@@ -20,7 +48,7 @@ const PurchaseSuccess = () => {
           <li key={item.id} className="list-group-item">
             <h5>{item.name}</h5>
             <img
-              src={item.imageUrl}
+              src={item.image}
               alt={item.description}
               style={{ width: "30vw", height: "auto" }}
             />

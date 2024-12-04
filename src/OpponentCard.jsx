@@ -13,9 +13,15 @@ const OpponentCard = (props) => {
   const handleAddToCart = async () => {
     const jwt = getJwt();
     try {
+     
+      console.log(props.id);
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/cart`,
-        { product_id: props.id, quantity: 1 },
+        { 
+          cartItems: [
+            { product_id: props.id, quantity: 1 } // Match the backend's structure
+          ] 
+        },
         {
           headers: {
             Authorization: `Bearer ${jwt}`,
@@ -27,6 +33,9 @@ const OpponentCard = (props) => {
       setShowMessages(true);
       setTimeout(() => setShowMessages(false), 2000);
     } catch (error) {
+      console.log(props.id)
+      console.error('Error adding to cart:', error.response?.data || error.message);
+      console.log(error.message)
       console.error('Error adding to cart:', error);
       setMessages('Failed to add to cart');
       setShowMessages(true);
@@ -49,7 +58,7 @@ const OpponentCard = (props) => {
       >
         <img
           src={props.imageUrl || props.image}
-          alt={props.name}
+          alt={props.Name}
           style={{
             maxWidth: '100%',
             maxHeight: '100%',

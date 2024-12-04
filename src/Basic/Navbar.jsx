@@ -1,27 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useLocation } from "wouter";
 import { useJwt } from "../UserStore"; // Import the useJwt hook
 
 function Navbar({ isNavbarShowing, toggleNavbar }) {
-  const [location] = useLocation();
-  const { jwt } = useJwt(); // Access the JWT from the store
-  const [userName, setUserName] = useState("Guest");
-
-  useEffect(() => {
-    // Decode the JWT or fetch user data if needed
-    if (jwt) {
-      try {
-        const decodedToken = JSON.parse(atob(jwt.split(".")[1])); // Decode JWT payload
-        setUserName(decodedToken.name || ""); // Use the name from the payload or fallback
-        console.log(decodedToken.name)
-      } catch (error) {
-        console.error("Error decoding JWT:", error);
-      }
-    }
-  }, [jwt]);
+  const [location, setLocation] = useLocation();
+  const { getUserName, clearJwt, clearUserName} = useJwt(); // Use `clearJwt` to handle logout
+  const userName = getUserName() || "Guest"; // Fallback to "Guest" if no username is available
 
   const handleCloseNavbar = () => {
     if (isNavbarShowing) toggleNavbar(false);
+  };
+
+  const handleLogout = () => {
+    clearJwt(); // Clear JWT and reset user state
+    clearUserName();
+    setLocation("/login"); // Redirect to login page
   };
 
   return (
@@ -46,7 +39,7 @@ function Navbar({ isNavbarShowing, toggleNavbar }) {
           id="navbarNav"
         >
           <ul className="navbar-nav ms-auto">
-            {[
+            {[ // Navigation links
               { href: "/", label: "Home" },
               { href: "/arena", label: "Arena" },
               { href: "/shop", label: "Shop" },
@@ -54,13 +47,21 @@ function Navbar({ isNavbarShowing, toggleNavbar }) {
               { href: "/register", label: "Register" },
               { href: "/cart", label: "Cart" },
               { href: "/inventory", label: "Inventory" },
-              { href: "/login", label: "Login" },
-            ].map(({ href, label }) => (
+              userName === "Guest"
+                ? { href: "/login", label: "Login" } // Show Login for guests
+                : { href: "#", label: "Logout", onClick: handleLogout }, // Show Logout for logged-in users
+            ].map(({ href, label, onClick }) => (
               <li className="nav-item" key={href}>
                 <Link
                   href={href}
                   className={`nav-link ${location === href ? "active" : ""}`}
-                  onClick={handleCloseNavbar}
+                  onClick={(e) => {
+                    handleCloseNavbar();
+                    if (onClick) {
+                      e.preventDefault(); // Prevent default navigation for Logout
+                      onClick();
+                    }
+                  }}
                 >
                   {label}
                 </Link>

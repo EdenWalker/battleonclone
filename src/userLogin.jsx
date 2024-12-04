@@ -8,7 +8,7 @@ import { useJwt } from './UserStore';
 function UserLogin() {
   const [, setLocation] = useLocation();
   const { showMessage } = useFlashMessage();
-  const { setJwt } = useJwt();
+  const { setJwt, setUserName } = useJwt();
   const initialValues = {
     email: '',
     password: ''
@@ -25,6 +25,8 @@ function UserLogin() {
       console.log('Login successful:', response.data);
      
       setJwt(response.data.token); 
+      setUserName(response.data.user.name);
+  
       actions.setSubmitting(false);
       showMessage('Login successful!', 'success');
       setLocation('/');
